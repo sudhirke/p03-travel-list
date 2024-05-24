@@ -1,5 +1,6 @@
 import { Checkbox } from "@mui/material";
 import { useState } from "react";
+import FlashCards from "./Flashcard";
 
 const initialItems = [
   { id: 1, description: "Passports", quantity: 2, packed: false },
@@ -14,6 +15,7 @@ function App() {
       <Form />
       <PackingList />
       <Stats />
+      <FlashCards />
     </div>
   );
 }
