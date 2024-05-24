@@ -1,4 +1,3 @@
-import { Checkbox } from "@mui/material";
 import { useState } from "react";
 import FlashCards from "./Flashcard";
 
@@ -9,13 +8,21 @@ const initialItems = [
 ];
 
 function App() {
+  //1. global app level state
+  const [items, setItems] = useState([]);
+
+  //2. Logic to handle add item
+  function handleAddItems(item) {
+    setItems((items) => [...items, item]);
+  }
+
+  //3. Pass handle function as property to child form componenet
   return (
     <div className="app">
       <Logo />
-      <Form />
-      <PackingList />
+      <Form onAddItems={handleAddItems} />
+      <PackingList items={items} />
       <Stats />
-      <FlashCards />
     </div>
   );
 }
@@ -24,7 +31,7 @@ function Logo() {
   return <h1>🏖️ Let's go places 🌋</h1>;
 }
 
-function Form() {
+function Form({ onAddItems }) {
   //create state variables to keep form data
   //1. declare state variable
   //2. bind control with state variable using value property
@@ -43,6 +50,8 @@ function Form() {
     //create new object baesd on value
     const newItem = { description, quantity, packed: false, id: Date.now };
     console.log(newItem);
+    //5. Call function from parent APP component and pass newly created item.
+    onAddItems(newItem);
 
     //reset control to default
     setDescription("");
@@ -76,11 +85,11 @@ function Form() {
 }
 
 //Packing list conponent definition
-function PackingList() {
+function PackingList({ items }) {
   return (
     <div className="list">
       <ul>
-        {initialItems.map((item) => {
+        {items.map((item) => {
           return <PackingItem item={item} key={item.id} />;
         })}
       </ul>
