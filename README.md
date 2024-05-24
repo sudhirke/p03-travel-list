@@ -1,5 +1,7 @@
 # Getting Started with Create React App
 
+Travel packing list application that allows you to create a travel checklist. This project uses States, Events and Form Submission in React-JS.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
