@@ -1,12 +1,6 @@
 import { useState } from "react";
 import FlashCards from "./Flashcard";
 
-const initialItems = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: true },
-  { id: 3, description: "Cloths", quantity: 12, packed: false },
-];
-
 function App() {
   //1. global app level state
   const [items, setItems] = useState([]);
@@ -16,13 +10,32 @@ function App() {
     setItems((items) => [...items, item]);
   }
 
+  //Funtion to delete item,  inverse communication
+  function handleDeleteItem(id) {
+    setItems((items) => items.filter((item) => item.id !== id));
+  }
+
+  //function to toggle the item (26.05.2024)
+  function handleToggleItem(id) {
+    //Update the checkbox for selected item
+    setItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item
+      )
+    );
+  }
+
   //3. Pass handle function as property to child form componenet
   return (
     <div className="app">
       <Logo />
       <Form onAddItems={handleAddItems} />
-      <PackingList items={items} />
-      <Stats />
+      <PackingList
+        items={items}
+        onDeleteItem={handleDeleteItem}
+        onToggleItem={handleToggleItem}
+      />
+      <Stats items={items} />
     </div>
   );
 }
@@ -48,7 +61,7 @@ function Form({ onAddItems }) {
     if (!description) return;
 
     //create new object baesd on value
-    const newItem = { description, quantity, packed: false, id: Date.now };
+    const newItem = { description, quantity, packed: false, id: Date.now() };
     console.log(newItem);
     //5. Call function from parent APP component and pass newly created item.
     onAddItems(newItem);
@@ -85,12 +98,20 @@ function Form({ onAddItems }) {
 }
 
 //Packing list conponent definition
-function PackingList({ items }) {
+//Passing deleteItem handler
+function PackingList({ items, onDeleteItem, onToggleItem }) {
   return (
     <div className="list">
       <ul>
         {items.map((item) => {
-          return <PackingItem item={item} key={item.id} />;
+          return (
+            <PackingItem
+              item={item}
+              key={item.id}
+              onDeleteItem={onDeleteItem}
+              onToggleItem={onToggleItem}
+            />
+          );
         })}
       </ul>
     </div>
@@ -98,22 +119,36 @@ function PackingList({ items }) {
 }
 
 //conditionally applying styles
-function PackingItem({ item }) {
+//26.05.24 - Added checkbox that toggles the item
+function PackingItem({ item, onDeleteItem, onToggleItem }) {
   return (
     <li>
-      <button>🗑️</button>
-
+      <input
+        type="checkbox"
+        value={item.packed}
+        onChange={() => onToggleItem(item.id)}
+      />
       <span style={item.packed ? { textDecoration: "line-through" } : {}}>
         {item.description} {item.quantity}
       </span>
+      <button onClick={() => onDeleteItem(item.id)}>🗑️</button>
     </li>
   );
 }
 
-function Stats() {
+function Stats({ items }) {
+  const numItems = items.length; //state value derived from items state value
+  const numPacked = items.filter((item) => item.packed).length;
+  const percentage = Math.round((numPacked / numItems) * 100);
+
   return (
     <footer className="stats">
-      🛒 You have XX items in the list and you already packed XX(X%)
+      <em>
+        {percentage === 100
+          ? "You got everything! ready to go ✈️"
+          : `🛒 You have ${numItems} items in the list and you already packed 
+        ${numPacked} (${percentage}%)`}
+      </em>
     </footer>
   );
 }
